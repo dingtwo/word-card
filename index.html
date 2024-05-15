@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+        <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+        <title>Word Card Generator</title>
+    </head>
+
+    <body class="bg-gray-100">
+        <div class="max-w-md mx-auto py-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-4">
+                    <h2 class="text-xl font-bold mb-2">Word Card Preview</h2>
+                    <div class="bg-gray-200 p-4 rounded flex flex-col justify-center items-center h-64 aspect-video"
+                        style="background-image: linear-gradient( 135deg, #FEB692 10%, #EA5455 100%);">
+                        <div class="h-1/2 flex flex-col justify-center items-center">
+                            <h3 class="text-4xl font-bold mb-2" id="word"></h3>
+                            <p class="text-gray-600 italic" id="pronunciation"></p>
+                        </div>
+                        <div class="h-1/2 flex items-center">
+                            <p class="text-sm italic mr-2" id="partOfSpeech"></p>
+                            <p class="text-base" id="definition"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入框 -->
+                <div>
+                    <input class="w-full border border-gray-300 rounded py-2 px-4 mb-2" type="text"
+                        placeholder="Enter a word" />
+                    <button class="bg-blue-500 text-white rounded py-2 px-4">
+                        Generate Card
+                    </button>
+                </div>
+                <button class="bg-green-500 text-white rounded py-2 px-4 absolute bottom-2 right-2" id="downloadBtn">
+                    Download
+                </button>
+            </div>
+        </div>
+
+        <script>
+            const cardPreviewEl = document.querySelector(".bg-gray-200");
+            const inputEl = document.querySelector("input");
+            const generateBtn = document.querySelector("button");
+            const downloadBtn = document.getElementById("downloadBtn");
+
+            function fetchWordInfo() {
+                return Promise.resolve('aaa')
+            }
+            generateBtn.addEventListener("click", () => {
+                const word = inputEl.value.trim();
+                if (word) {
+                    fetchWordInfo(word)
+                        .then((data) => {
+                            renderCardPreview(data);
+                            downloadBtn.style.display = "block";
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching word info:", error);
+                        });
+                }
+            });
+            function renderCardPreview(wordInfo) {
+                const { word, definition, pronunciation, partOfSpeech } = wordInfo;
+                document.getElementById("word").textContent = word;
+                document.getElementById("pronunciation").textContent = pronunciation;
+                document.getElementById("partOfSpeech").textContent = partOfSpeech;
+                document.getElementById("definition").textContent = definition;
+            }
+            downloadBtn.addEventListener("click", () => {
+                downloadCardPreview();
+            });
+
+            function downloadCardPreview() {
+                const canvas = document.createElement("canvas");
+                const cardPreviewRect = cardPreviewEl.getBoundingClientRect();
+                canvas.width = cardPreviewRect.width;
+                canvas.height = cardPreviewRect.height;
+                console.log('width', cardPreviewRect.width)
+                console.log('height', cardPreviewRect.height)
+                const context = canvas.getContext("2d");
+
+                html2canvas(cardPreviewEl, { canvas }).then((canvas) => {
+                    canvas.toBlob((blob) => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = "word-card.png";
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }, "image/png");
+                });
+            }
+        </script>
+    </body>
+
+</html>
